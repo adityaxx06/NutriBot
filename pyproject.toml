@@ -1,3 +1,10 @@
+# Project metadata (required so Vercel's installer accepts this file).
+[project]
+name = "nutribot"
+version = "1.0.0"
+requires-python = ">=3.10"
+dependencies = ["groq>=0.9,<1.0"]
+
 # Tells Vercel exactly which Python function handles requests.
 # Without this, Vercel fails with "No python entrypoint found".
 [tool.vercel]
