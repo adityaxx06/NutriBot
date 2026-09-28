@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="NutriBot - your simple AI assistant for diet and nutrition." />
+  <title>NutriBot - AI Diet &amp; Nutrition Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="chat-card">
+
+      <!-- Header -->
+      <header class="chat-header">
+        <div class="logo" aria-hidden="true">&#129398;</div>
+        <div class="header-text">
+          <h1>NUTRIBOT</h1>
+          <p class="subtitle">AI Diet &amp; Nutrition Assistant</p>
+        </div>
+      </header>
+
+      <!-- Welcome + quick questions -->
+      <section id="welcomeBlock" class="welcome">
+        <p class="welcome-text">
+          Hi! &#128075;<br />
+          I'm NutriBot, your AI diet and nutrition assistant.<br />
+      
+        </p>
+        <div class="quick-questions">
+          <button class="quick-btn" type="button" data-question="Suggest a healthy breakfast">&#129368; Healthy Breakfast</button>
+          <button class="quick-btn" type="button" data-question="What are good protein sources?">&#128170; Protein Sources</button>
+          <!-- <button class="quick-btn" type="button" data-question="Why is hydration important?">&#128167; Hydration</button> -->
+          <button class="quick-btn" type="button" data-question="Suggest healthy snacks">&#127822; Healthy Snacks</button>
+          <button class="quick-btn" type="button" data-question="What is a balanced diet?">&#129368; Balanced Diet</button>
+        </div>
+      </section>
+
+      <!-- Chat area -->
+      <main id="chatBox" class="chat-box" aria-live="polite"></main>
+
+      <!-- Input area -->
+      <footer class="chat-input-area">
+        <label class="sr-only" for="userInput">Ask a diet or nutrition question</label>
+        <textarea id="userInput" rows="1" placeholder="Ask a diet or nutrition question..."></textarea>
+        <button id="sendBtn" class="btn btn-primary" type="button">Send</button>
+        <button id="clearBtn" class="btn btn-ghost" type="button">Clear Chat</button>
+      </footer>
+
+    </div>
+
+    <p class="footer-note">
+      NutriBot provides general educational nutrition information
+      and is not a medical professional.
+    </p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
