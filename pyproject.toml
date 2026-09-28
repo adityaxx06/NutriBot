@@ -1,0 +1,4 @@
+# Tells Vercel exactly which Python function handles requests.
+# Without this, Vercel fails with "No python entrypoint found".
+[tool.vercel]
+entrypoint = "api.chat:handler"

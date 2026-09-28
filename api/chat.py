@@ -27,6 +27,18 @@ MAX_HISTORY = 10
 # Values that mean "no real key configured".
 PLACEHOLDER_KEYS = {"", "your_api_key_here", "your_actual_groq_api_key_here"}
 
+# Project root (one level above api/) - used to serve the frontend files
+# when Vercel loads this module as the app entrypoint (see pyproject.toml).
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Frontend files served for direct GET requests.
+STATIC_FILES = {
+    "/": ("index.html", "text/html"),
+    "/index.html": ("index.html", "text/html"),
+    "/style.css": ("style.css", "text/css"),
+    "/script.js": ("script.js", "application/javascript"),
+}
+
 # Tells the LLM how to behave as NutriBot.
 SYSTEM_PROMPT = """You are NutriBot, an AI diet and nutrition assistant.
 
@@ -153,4 +165,20 @@ class handler(BaseHTTPRequestHandler):
         return self._send_json(200, {"response": answer})
 
     def do_GET(self):
-        self._send_json(405, {"error": "Use POST /api/chat with a JSON body."})
+        path = self.path.split("?")[0]
+        if path in STATIC_FILES:
+            # Serve the frontend (needed when Vercel loads this module
+            # as the app entrypoint; otherwise Vercel serves these statically).
+            filename, content_type = STATIC_FILES[path]
+            try:
+                with open(os.path.join(BASE_DIR, filename), "rb") as f:
+                    body = f.read()
+            except OSError:
+                return self._send_json(404, {"error": "Not found."})
+            self.send_response(200)
+            self.send_header("Content-Type", content_type + "; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        else:
+            self._send_json(405, {"error": "Use POST /api/chat with a JSON body."})
