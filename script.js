@@ -31,13 +31,112 @@ function saveHistory() {
   }
 }
 
+function escapeHtml(s) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function inlineFormat(s) {
+  // `code` first, then **bold** (escaped text is safe to inject tags into).
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  return s;
+}
+
+// Minimal structured renderer: headings, bullet/numbered lists,
+// paragraphs. No external library - easy for viva explanation.
+function formatBotText(raw) {
+  const lines = escapeHtml(raw).split(/\r?\n/);
+  let html = "";
+  let listOpen = ""; // "" | "ul" | "ol"
+
+  function closeList() {
+    if (listOpen) {
+      html += listOpen === "ul" ? "</ul>" : "</ol>";
+      listOpen = "";
+    }
+  }
+
+  for (let line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      closeList();
+      continue;
+    }
+
+    // Headings: # Title, ## Title, ### Title
+    const h = trimmed.match(/^(#{1,4})\s+(.*)/);
+    if (h) {
+      closeList();
+      html += "<h4>" + inlineFormat(h[2]) + "</h4>";
+      continue;
+    }
+
+    // Bullet: - item, * item, • item
+    const bullet = trimmed.match(/^([-*•])\s+(.*)/);
+    if (bullet) {
+      if (listOpen !== "ul") {
+        closeList();
+        html += "<ul>";
+        listOpen = "ul";
+      }
+      html += "<li>" + inlineFormat(bullet[2]) + "</li>";
+      continue;
+    }
+
+    // Numbered: 1. item, 1) item
+    const num = trimmed.match(/^(\d+)[.)]\s+(.*)/);
+    if (num) {
+      if (listOpen !== "ol") {
+        closeList();
+        html += "<ol>";
+        listOpen = "ol";
+      }
+      html += "<li>" + inlineFormat(num[2]) + "</li>";
+      continue;
+    }
+
+    // Normal paragraph line.
+    closeList();
+    html += "<p>" + inlineFormat(trimmed) + "</p>";
+  }
+  closeList();
+  return html || "<p></p>";
+}
+
 function addBubble(text, sender) {
   const row = document.createElement("div");
   row.className = "message " + sender;
 
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-  bubble.textContent = text;
+
+  if (sender === "bot") {
+    const label = document.createElement("span");
+    label.className = "sender-label";
+    label.textContent = "NutriBot";
+    bubble.appendChild(label);
+
+    const body = document.createElement("div");
+    body.className = "formatted";
+    body.innerHTML = formatBotText(text);
+    bubble.appendChild(body);
+  } else if (sender === "user") {
+    const label = document.createElement("span");
+    label.className = "sender-label";
+    label.textContent = "You";
+    bubble.appendChild(label);
+
+    const body = document.createElement("div");
+    body.className = "plain";
+    body.textContent = text;
+    bubble.appendChild(body);
+  } else {
+    bubble.textContent = text;
+  }
 
   row.appendChild(bubble);
   chatBox.appendChild(row);
@@ -48,8 +147,7 @@ function renderHistory() {
   chatBox.innerHTML = "";
   for (const msg of conversation) {
     const sender = msg.role === "user" ? "user" : "bot";
-    const prefix = sender === "user" ? "You: " : "NutriBot: ";
-    addBubble(prefix + msg.content, sender);
+    addBubble(msg.content, sender);
   }
 }
 
@@ -65,7 +163,7 @@ async function sendMessage(text) {
   // 2. Show user message + loading (no page reload).
   conversation.push({ role: "user", content: message });
   saveHistory();
-  addBubble("You: " + message, "user");
+  addBubble(message, "user");
   userInput.value = "";
 
   try {
@@ -88,7 +186,7 @@ async function sendMessage(text) {
     // 4. Show NutriBot's answer.
     conversation.push({ role: "assistant", content: data.response });
     saveHistory();
-    addBubble("NutriBot: " + data.response, "bot");
+    addBubble(data.response, "bot");
   } catch {
     addBubble("Sorry, I couldn't get a response right now. Please try again.", "error");
   }

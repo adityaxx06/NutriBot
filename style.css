@@ -125,6 +125,45 @@ body {
   border: 1px solid #f3c1c1;
 }
 
+/* Structured bot / user content */
+.sender-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0.75;
+}
+.message.bot .sender-label { color: var(--primary-dark); }
+.message.user .sender-label { color: #e8f3e8; opacity: 0.9; }
+
+.bubble .formatted p { margin: 6px 0; }
+.bubble .formatted p:first-child { margin-top: 0; }
+.bubble .formatted p:last-child { margin-bottom: 0; }
+.bubble .formatted h4 {
+  margin: 10px 0 4px;
+  font-size: 14px;
+  color: var(--primary-dark);
+}
+.bubble .formatted h4:first-child { margin-top: 0; }
+.bubble .formatted ul,
+.bubble .formatted ol {
+  margin: 6px 0 6px 20px;
+  padding: 0;
+}
+.bubble .formatted li { margin: 4px 0; line-height: 1.5; }
+.bubble .formatted li::marker { color: var(--primary); font-weight: 700; }
+.bubble .formatted strong { font-weight: 700; }
+.bubble .formatted code {
+  background: rgba(60, 145, 64, 0.12);
+  border: 1px solid rgba(60, 145, 64, 0.2);
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.bubble .plain { white-space: pre-wrap; }
+
 /* Input */
 .chat-input-area {
   display: flex;
